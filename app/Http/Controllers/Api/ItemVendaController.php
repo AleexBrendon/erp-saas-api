@@ -43,6 +43,9 @@ class ItemVendaController extends Controller
         }
 
         $data['empresa_id'] = $empresaId;
+        $data['preco'] = $data['preco_unitario']; // <<< correção
+        unset($data['preco_unitario']);
+
         $item = ItemVenda::create($data);
 
         return response()->json($item, 201);
@@ -75,6 +78,10 @@ class ItemVendaController extends Controller
         }
         if (isset($data['servico_id'])) {
             Servico::where('empresa_id', $empresaId)->findOrFail($data['servico_id']);
+        }
+        if (isset($data['preco_unitario'])) {
+            $data['preco'] = $data['preco_unitario'];
+            unset($data['preco_unitario']);
         }
 
         $item->update($data);

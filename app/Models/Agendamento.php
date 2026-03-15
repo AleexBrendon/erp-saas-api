@@ -22,7 +22,7 @@ class Agendamento extends Model
 
     protected $casts = [
         'data' => 'date',
-        'hora' => 'time',
+        'hora' => 'datetime:H:i:s',
     ];
 
     public function empresa()
