@@ -2,74 +2,145 @@
 
 API backend para [descreva sua plataforma, ex: ERP SaaS leve], construída com Laravel, para gerenciar usuários, clientes, produtos, vendas e finanças.
 
-🛠 Tecnologias
+1. Pré-requisitos
 
-PHP 8.x
+Docker
+ (Desktop)
 
-Laravel 10.x
+Docker Compose
 
-MySQL / PostgreSQL
+Postman
+ ou outro cliente HTTP
 
-Laravel Sanctum (autenticação via API)
 
-Composer (dependências)
+2. Estrutura Docker
 
-⚡ Funcionalidades
+PHP-FPM (app) → roda Laravel
 
-CRUD de usuários, clientes, produtos e serviços
+Nginx (nginx) → servidor web, serve public/
 
-Registro de vendas e agendamentos
+MySQL (mysql) → banco de dados
 
-Controle financeiro e transações
+Redis (redis) → cache e filas
 
-Autenticação via token (Sanctum)
+Volumes → persistência de dados do MySQL e arquivos Laravel
 
-Middleware de permissão por empresa/usuário
 
-🔧 Instalação
-git clone <link-do-repositorio>
-cd <pasta-do-projeto>
-composer install
-cp .env.example .env
-php artisan key:generate
+3. Configuração do .env
+
+Exemplo de configuração de banco de dados para Docker:
+
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=erp_saas
+DB_USERNAME=erp_user
+DB_PASSWORD=erp_pass
+
+O DB_HOST deve ser o nome do serviço MySQL definido no docker-compose.yml.
+
+
+4. Comandos básicos do Docker
+
+Subir containers
+docker-compose up -d --build
+
+Ver containers ativos
+docker ps
+
+Entrar no container Laravel
+docker exec -it laravel_app bash
+
+Parar e remover containers
+docker-compose down
+
+Iniciar servidor manualmente:
+php artisan serve --host=0.0.0.0 --port=8000
+
+Use -v para remover volumes se necessário.
+
+
+5. Laravel - Comandos úteis
+
+Dentro do container laravel_app:
+
+Rodar migrations e seeders:
 php artisan migrate --seed
-php artisan serve
 
-A API estará disponível em: http://127.0.0.1:8000
+Limpar cache e otimizações:
+php artisan optimize:clear
 
-🔑 Rotas Principais
+Listar rotas:
+php artisan route:list
 
-/api/usuarios – CRUD de usuários
+Logs do Laravel:
+tail -f storage/logs/laravel.log
 
-/api/clientes – CRUD de clientes
 
-/api/produtos – CRUD de produtos
+6. Testando a API com Postman
 
-/api/servicos – CRUD de serviços
+URL base
+http://localhost:8000/api
 
-/api/vendas – Gestão de vendas
+Endpoints principais
 
-/api/financeiro – Controle financeiro
+Método	Endpoint	Descrição
+POST	/api/login	Autenticação do usuário
+POST	/api/register	Cadastro de empresas/usuários
+GET	/api/clientes	Listar clientes
+POST	/api/clientes	Criar cliente
+GET	/api/agendamentos	Listar agendamentos
+POST	/api/agendamentos	Criar agendamento
+GET	/api/financeiro	Listar lançamentos financeiros
+POST	/api/financeiro	Criar lançamento financeiro
+GET	/api/vendas	Listar vendas
+POST	/api/vendas	Criar venda
 
-Todas as rotas seguem RESTful e algumas requerem Bearer Token.
+Para endpoints autenticados, use o token retornado no login como Bearer Token.
 
-🧪 Testando com Postman
+Exemplo de requisição Login
 
-Abra o Postman ou outra ferramenta de testes de API.
+POST http://localhost:8000/api/login
+Body (JSON):
+{
+    "email": "admin@erp.com",
+    "password": "123456"
+}
+Usando o token para autenticação
 
-Crie uma nova Request e selecione o método HTTP correspondente (GET, POST, PUT, DELETE).
+Copie o token retornado no login.
 
-Insira a URL da rota, por exemplo:
+Nos headers da requisição autenticada:
 
-http://127.0.0.1:8000/api/usuarios
+Key: Authorization
+Value: Bearer <seu_token_aqui>
 
-Para rotas protegidas, adicione no Header:
 
-Authorization: Bearer <seu_token_aqui>
+7. Debug e logs
 
-Envie a requisição e verifique a resposta JSON da API.
+Laravel logs:
+docker exec -it laravel_app tail -f storage/logs/laravel.log
 
-Dica: você pode exportar uma coleção de rotas no Postman para compartilhar facilmente com outros desenvolvedores.
+Nginx logs:
+docker logs -f laravel_nginx
+
+MySQL logs:
+docker logs -f mysql_db
+
+Alterações no .env ou novas migrations:
+php artisan config:clear
+php artisan migrate
+
+
+8. Dicas rápidas
+
+Sempre verifique se containers estão ativos (docker ps).
+
+Use o nome do serviço MySQL no .env (DB_HOST=mysql) e não 127.0.0.1.
+
+Para testes rápidos, use Postman Collection com os endpoints definidos.
+
+Para problemas de cache, rode php artisan optimize:clear dentro do container Laravel.
 
 
 📄 Licença

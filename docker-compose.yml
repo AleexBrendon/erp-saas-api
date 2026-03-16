@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  # PHP-FPM Laravel
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - mysql
+      - redis
+
+  # Nginx para servir Laravel
+  nginx:
+    image: nginx:alpine
+    container_name: laravel_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - app
+
+  # MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: erp_saas
+      MYSQL_USER: erp_user
+      MYSQL_PASSWORD: erp_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # Redis para cache e queues
+  redis:
+    image: redis:alpine
+    container_name: redis_cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  mysql_data:
