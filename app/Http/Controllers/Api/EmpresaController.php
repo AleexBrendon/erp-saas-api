@@ -29,7 +29,6 @@ class EmpresaController extends Controller
 
         try {
 
-            // 1️⃣ Criar empresa
             $empresa = Empresa::create([
                 'nome'  => $request->nome,
                 'cnpj'  => $request->cnpj,
@@ -37,7 +36,6 @@ class EmpresaController extends Controller
                 'plano' => $request->plano ?? 'free'
             ]);
 
-            // 2️⃣ Criar usuário admin
             $usuario = Usuario::create([
                 'nome'       => $request->nome,
                 'email'      => $request->email,

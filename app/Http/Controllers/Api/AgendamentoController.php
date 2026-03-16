@@ -10,9 +10,6 @@ use App\Models\Servico;
 
 class AgendamentoController extends Controller
 {
-    /**
-     * Listar todos os agendamentos da empresa do usuário logado
-     */
     public function index(Request $request)
     {
         $empresaId = $request->user()->empresa_id;
@@ -24,9 +21,6 @@ class AgendamentoController extends Controller
         return response()->json($agendamentos);
     }
 
-    /**
-     * Criar um novo agendamento
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -39,11 +33,9 @@ class AgendamentoController extends Controller
 
         $empresaId = $request->user()->empresa_id;
 
-        // Garante que cliente e serviço pertencem à empresa do usuário
         Cliente::where('empresa_id', $empresaId)->findOrFail($data['cliente_id']);
         Servico::where('empresa_id', $empresaId)->findOrFail($data['servico_id']);
 
-        // Divide data_hora em data e hora
         $data['data'] = date('Y-m-d', strtotime($data['data_hora']));
         $data['hora'] = date('H:i:s', strtotime($data['data_hora']));
 
@@ -57,9 +49,6 @@ class AgendamentoController extends Controller
         return response()->json($agendamento, 201);
     }
 
-    /**
-     * Mostrar um agendamento específico
-     */
     public function show(Request $request, $id)
     {
         $empresaId = $request->user()->empresa_id;
@@ -71,9 +60,6 @@ class AgendamentoController extends Controller
         return response()->json($agendamento);
     }
 
-    /**
-     * Atualizar um agendamento
-     */
     public function update(Request $request, $id)
     {
         $empresaId = $request->user()->empresa_id;
@@ -107,9 +93,6 @@ class AgendamentoController extends Controller
         return response()->json($agendamento);
     }
 
-    /**
-     * Deletar um agendamento
-     */
     public function destroy(Request $request, $id)
     {
         $empresaId = $request->user()->empresa_id;

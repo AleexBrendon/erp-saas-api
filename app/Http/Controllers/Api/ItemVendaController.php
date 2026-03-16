@@ -43,7 +43,7 @@ class ItemVendaController extends Controller
         }
 
         $data['empresa_id'] = $empresaId;
-        $data['preco'] = $data['preco_unitario']; // <<< correção
+        $data['preco'] = $data['preco_unitario'];
         unset($data['preco_unitario']);
 
         $item = ItemVenda::create($data);
