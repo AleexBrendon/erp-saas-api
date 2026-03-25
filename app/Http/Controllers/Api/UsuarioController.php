@@ -44,7 +44,11 @@ class UsuarioController extends Controller
 
     public function index(Request $request)
     {
-        return Usuario::where('empresa_id', $request->empresa_id)->get();
+        $empresaId = $request->user()->empresa_id;
+
+        return Usuario::where('empresa_id', $empresaId)
+            ->select('id', 'nome', 'email', 'role')
+            ->get();
     }
 
     public function store(Request $request)
@@ -56,10 +60,13 @@ class UsuarioController extends Controller
             'role' => 'required|in:admin,funcionario',
         ]);
 
-        $data = $request->only(['nome', 'email', 'password', 'role']);
-        $data['empresa_id'] = $request->empresa_id;
+        $data = $request->only(['nome', 'email', 'role']);
+        $data['empresa_id'] = $request->user()->empresa_id;
+        $data['password'] = Hash::make($request->password);
 
-        return Usuario::create($data);
+        $usuario = Usuario::create($data);
+
+        return response()->json($usuario);
     }
 
     public function show(Request $request, Usuario $usuario)
@@ -83,6 +90,10 @@ class UsuarioController extends Controller
             'password' => 'sometimes|string|min:6',
             'role' => 'sometimes|in:admin,funcionario',
         ]);
+
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
 
         $usuario->update($data);
 

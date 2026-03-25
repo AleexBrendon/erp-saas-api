@@ -26,7 +26,8 @@ class AgendamentoController extends Controller
         $data = $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'servico_id' => 'required|exists:servicos,id',
-            'data_hora' => 'required|date_format:Y-m-d H:i:s',
+            'data' => 'required|date',
+            'hora' => 'required|date_format:H:i:s',
             'status' => 'nullable|string|max:50',
             'observacao' => 'nullable|string',
         ]);
@@ -35,11 +36,6 @@ class AgendamentoController extends Controller
 
         Cliente::where('empresa_id', $empresaId)->findOrFail($data['cliente_id']);
         Servico::where('empresa_id', $empresaId)->findOrFail($data['servico_id']);
-
-        $data['data'] = date('Y-m-d', strtotime($data['data_hora']));
-        $data['hora'] = date('H:i:s', strtotime($data['data_hora']));
-
-        unset($data['data_hora']);
 
         $data['empresa_id'] = $empresaId;
         $data['usuario_id'] = $request->user()->id;
@@ -69,20 +65,21 @@ class AgendamentoController extends Controller
         $data = $request->validate([
             'cliente_id' => 'sometimes|required|exists:clientes,id',
             'servico_id' => 'sometimes|required|exists:servicos,id',
-            'data_hora' => 'sometimes|required|date_format:Y-m-d H:i:s',
+            'data' => 'sometimes|required|date',
+            'hora' => 'sometimes|required|date_format:H:i:s',
             'status' => 'nullable|string|max:50',
             'observacao' => 'nullable|string',
         ]);
 
-        if(isset($data['cliente_id'])){
+        if (isset($data['cliente_id'])) {
             Cliente::where('empresa_id', $empresaId)->findOrFail($data['cliente_id']);
         }
 
-        if(isset($data['servico_id'])){
+        if (isset($data['servico_id'])) {
             Servico::where('empresa_id', $empresaId)->findOrFail($data['servico_id']);
         }
 
-        if(isset($data['data_hora'])){
+        if (isset($data['data_hora'])) {
             $data['data'] = date('Y-m-d', strtotime($data['data_hora']));
             $data['hora'] = date('H:i:s', strtotime($data['data_hora']));
             unset($data['data_hora']);

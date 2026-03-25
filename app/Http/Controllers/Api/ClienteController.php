@@ -21,6 +21,7 @@ class ClienteController extends Controller
             'nome' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
             'telefone' => 'nullable|string|max:50',
+            'documento' => 'nullable|string|max:50',
         ]);
 
         $data['empresa_id'] = $request->user()->empresa_id;
@@ -45,6 +46,7 @@ class ClienteController extends Controller
             'nome' => 'sometimes|required|string|max:255',
             'email' => 'nullable|email|max:255',
             'telefone' => 'nullable|string|max:50',
+            'documento' => 'nullable|string|max:50',
         ]);
 
         $cliente->update($data);

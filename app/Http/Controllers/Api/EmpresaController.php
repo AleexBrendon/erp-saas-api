@@ -49,14 +49,35 @@ class EmpresaController extends Controller
                 'empresa' => $empresa,
                 'usuario' => $usuario
             ], 201);
-
         } catch (\Exception $e) {
 
             return response()->json([
                 'message' => 'Erro ao cadastrar empresa ou usuário',
                 'error' => $e->getMessage()
             ], 500);
-
         }
     }
+
+    public function me(Request $request)
+{
+    $usuario = $request->user(); // usuário logado
+
+    if (!$usuario || !$usuario->empresa_id) {
+        return response()->json(['message' => 'Usuário sem empresa'], 404);
+    }
+
+    $empresa = Empresa::find($usuario->empresa_id);
+
+    if (!$empresa) {
+        return response()->json(['message' => 'Empresa não encontrada'], 404);
+    }
+
+    return response()->json([
+        'id'    => $empresa->id,
+        'nome'  => $empresa->nome,
+        'cnpj'  => $empresa->cnpj,
+        'email' => $empresa->email,
+        'plano' => $empresa->plano,
+    ]);
+}
 }

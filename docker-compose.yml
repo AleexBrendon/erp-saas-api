@@ -9,6 +9,10 @@ services:
     container_name: laravel_app
     restart: unless-stopped
     working_dir: /var/www
+    volumes:
+      - .:/var/www:delegated
+      - /var/www/vendor/
+      - /var/www/node_modules/
     depends_on:
       - mysql
       - redis
@@ -21,7 +25,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./:/var/www
+      - ./:/var/www:cached
       - ./nginx/conf.d:/etc/nginx/conf.d
     depends_on:
       - app

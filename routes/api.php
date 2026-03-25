@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\AgendamentoController;
 use App\Http\Controllers\Api\FinanceiroController;
 
 Route::get('/teste', function () {
-    return ['status' => 'ok'];
+    return ['status' => 'mudei'];
 });
 
 // Rotas públicas de autenticação
@@ -21,6 +21,8 @@ Route::post('register', [EmpresaController::class, 'register']);
 Route::post('login', [UsuarioController::class, 'login']);
 
 Route::middleware(['auth:sanctum', CheckEmpresa::class])->group(function () {
+
+    Route::get('empresa/me', [EmpresaController::class, 'me']);
 
     // USUÁRIOS
     Route::post('logout', [UsuarioController::class, 'logout']);
