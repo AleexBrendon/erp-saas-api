@@ -20,7 +20,6 @@ class VendaController extends Controller
     {
         $data = $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
-            'data_venda' => 'required|date',
             'total' => 'required|numeric',
             'status' => 'nullable|string|max:50',
         ]);
@@ -53,7 +52,7 @@ class VendaController extends Controller
             'status' => 'nullable|string|max:50',
         ]);
 
-        if(isset($data['cliente_id'])){
+        if (isset($data['cliente_id'])) {
             $cliente = Cliente::where('empresa_id', $empresaId)->findOrFail($data['cliente_id']);
         }
 
