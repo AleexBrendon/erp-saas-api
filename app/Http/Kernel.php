@@ -7,6 +7,7 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 class Kernel extends HttpKernel
 {
     protected $middleware = [
+        \Illuminate\Http\Middleware\HandleCors::class,
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \Illuminate\Foundation\Http\Middleware\TrimStrings::class,
@@ -14,9 +15,7 @@ class Kernel extends HttpKernel
     ];
 
     protected $middlewareGroups = [
-        'web' => [
-            
-        ],
+        'web' => [],
 
         'api' => [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
@@ -36,5 +35,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.empresa' => \App\Http\Middleware\CheckEmpresa::class,
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ];
 }

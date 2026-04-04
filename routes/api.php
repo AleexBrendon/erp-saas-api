@@ -12,23 +12,26 @@ use App\Http\Controllers\Api\ItemVendaController;
 use App\Http\Controllers\Api\AgendamentoController;
 use App\Http\Controllers\Api\FinanceiroController;
 
-Route::get('/teste', function () {
-    return ['status' => 'mudei'];
-});
-
-// Rotas públicas de autenticação
-Route::post('register', [EmpresaController::class, 'register']);
-Route::post('login', [UsuarioController::class, 'login']);
-
 Route::middleware(['auth:sanctum', CheckEmpresa::class])->group(function () {
 
     Route::get('empresa/me', [EmpresaController::class, 'me']);
 
-    // USUÁRIOS
-    Route::post('logout', [UsuarioController::class, 'logout']);
-    Route::apiResource('usuarios', UsuarioController::class);
+    Route::post('register', [EmpresaController::class, 'register']);
+    Route::post('login', [UsuarioController::class, 'login']);
 
-    // MÓDULOS ERP
+    // Logout
+    Route::post('logout', [UsuarioController::class, 'logout']);
+
+    // Rotas de usuários protegidas por admin
+    Route::middleware(['admin'])->group(function () {
+        // API Resource para CRUD completo
+        Route::apiResource('usuarios', UsuarioController::class);
+
+        // Toggle ativo/desativo
+        Route::patch('usuarios/{usuario}/toggle', [UsuarioController::class, 'toggleActive']);
+    });
+
+    // Módulos ERP
     Route::apiResource('clientes', ClienteController::class);
     Route::apiResource('produtos', ProdutoController::class);
     Route::apiResource('servicos', ServicoController::class);
