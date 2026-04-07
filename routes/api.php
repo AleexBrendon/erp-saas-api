@@ -22,6 +22,10 @@ Route::middleware(['auth:sanctum', CheckEmpresa::class])->group(function () {
     // Logout
     Route::post('logout', [UsuarioController::class, 'logout']);
 
+    // Esqueci minha senha
+    Route::post('/forgot-password', [UsuarioController::class, 'forgotPassword']);
+    Route::post('/reset-password', [UsuarioController::class, 'resetPassword']);
+
     // Rotas de usuários protegidas por admin
     Route::middleware(['admin'])->group(function () {
         // API Resource para CRUD completo

@@ -7,6 +7,10 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class UsuarioController extends Controller
 {
@@ -25,7 +29,7 @@ class UsuarioController extends Controller
         return response()->json($usuarios);
     }
 
-     public function login(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -159,5 +163,78 @@ class UsuarioController extends Controller
         if ($usuario->empresa_id != $request->user()->empresa_id) {
             abort(403, 'Não autorizado');
         }
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:usuarios,email',
+        ]);
+
+        $token = Str::random(60);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'token' => Hash::make($token),
+                'created_at' => now()
+            ]
+        );
+
+        $link = config('app.frontend_url') . "/reset-password?token=$token&email=" . urlencode($request->email);
+
+        Mail::raw("Clique para redefinir sua senha: $link", function ($message) use ($request) {
+            $message->to($request->email)
+                ->subject('Recuperação de senha');
+        });
+
+        return response()->json([
+            'message' => 'Se o e-mail existir, você receberá instruções.'
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:usuarios,email',
+            'token' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$record) {
+            return response()->json(['error' => 'Token inválido'], 400);
+        }
+
+        // 🔐 expiração (60 min)
+        if (now()->diffInMinutes($record->created_at) > 60) {
+            return response()->json(['error' => 'Token expirado'], 400);
+        }
+
+        if (!Hash::check($request->token, $record->token)) {
+            return response()->json(['error' => 'Token inválido'], 400);
+        }
+
+        $usuario = Usuario::where('email', $request->email)->first();
+
+        $usuario->password = Hash::make($request->password);
+        $usuario->save();
+
+        // 🔥 invalida sessões
+        DB::table('personal_access_tokens')
+            ->where('tokenable_id', $usuario->id)
+            ->delete();
+
+        // remove token
+        DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->delete();
+
+        return response()->json([
+            'message' => 'Senha redefinida com sucesso'
+        ]);
     }
 }
